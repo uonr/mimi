@@ -1,0 +1,2 @@
+# mimi
+secrets provision server
