@@ -9,7 +9,7 @@
   };
 
   outputs = { self, nixpkgs, mach-nix, flake-utils, ... }:
-    let pythonVersion = "python39";
+    let pythonVersion = "python310";
     in flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -46,7 +46,7 @@
 
         devShells.default = pkgs.mkShellNoCC {
           packages = [ pythonAppEnv ];
-          propagatedBuildInputs = [ pkgs.rage ];
+          propagatedBuildInputs = with pkgs; [ rage ];
 
           shellHook = ''
             export PYTHONPATH="${pythonAppEnv}/bin/python"

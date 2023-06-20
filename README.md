@@ -6,7 +6,7 @@ A simple secrets provision server
 ```shell
 echo 'ほんとのきもちはひみつだよ' > secrets/example
 ssh-keygen -t ed25519 -C 'mimi' -f key
-nix run 'github:uonr/mimi'
+nix run 'github:uonr/mimi' serve
 curl -F "key=@key.pub" -X POST http://localhost:8111/sign/example > example.sig
 # -----BEGIN SSH SIGNATURE-----
 # ...

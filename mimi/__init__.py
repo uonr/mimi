@@ -1,51 +1,18 @@
-import os
-import subprocess
-from subprocess import PIPE, STDOUT
-from flask import Flask, request
-from werkzeug.datastructures import FileStorage
-from .errors import NoKeyFile, PublicKeyNotFound, SecretNotFound
-from .utils import check_id
 
-app = Flask(__name__)
+from .app import app
+import argparse
 
-SSH_KEY_PATH = "./key"
+from mimi import app
+parser = argparse.ArgumentParser()
+subparsers = parser.add_subparsers(help='sub-command help', dest="command")
+serve_parser = subparsers.add_parser('serve', help='run mimi server')
+serve_parser.add_argument('--port', type=int, default=8111, help='port to run server on')
+serve_parser.add_argument('--debug', action='store_true', help='run server in debug mode');
 
-@app.route("/")
-def hello_world():
-    return "<p>mimi</p>"
-
-def encrypt(id: str):
-    check_id(id)
-    PUBLIC_KEY_PATH = "./secrets/{}.pub".format(id)
-    if not os.path.exists(PUBLIC_KEY_PATH):
-        if request.method == "POST":
-            recived_key = request.files.get("key", None)
-            if recived_key is None:
-                raise NoKeyFile()
-            assert isinstance(recived_key, FileStorage)
-            recived_key.save(PUBLIC_KEY_PATH)
-        else:
-            raise PublicKeyNotFound()
-    SECRET_PATH = "./secrets/{}".format(id)
-    if not os.path.exists(SECRET_PATH):
-        raise SecretNotFound()
-    return subprocess.check_output(["rage", "-R", PUBLIC_KEY_PATH, "-a", SECRET_PATH])
-
-@app.route("/sign/<id>", methods=["GET", "POST"])
-def sign(id):
-    check_id(id)
-    if not os.path.exists(SSH_KEY_PATH):
-        raise NoKeyFile()
-    p = subprocess.Popen(["ssh-keygen", '-Y', 'sign', '-n', 'file', '-f', SSH_KEY_PATH], stdout=PIPE, stdin=PIPE, stderr=PIPE)
-    with open("./secrets/{}".format(id), "rb") as f:
-        stdout, _stderr = p.communicate(input=f.read())
-    return stdout
-
-
-@app.route("/get/<id>", methods=["GET", "POST"])
-def fetch_secret(id):
-    encrypted = encrypt(id)
-    return encrypted
 
 def main():
-    app.run(port=8111)
+    args = parser.parse_args()
+
+    match args.command:
+        case "serve":
+            app.run(port=args.port, debug=args.debug)
