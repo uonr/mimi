@@ -1,9 +1,9 @@
 from flask.app import HTTPException
 
 
-class InvaildHostname(HTTPException):
+class InvaildNodeId(HTTPException):
     code = 400
-    description = 'Invalid hostname'
+    description = 'Invalid node id'
 
 class NoKeyFile(HTTPException):
     code = 400

@@ -3,8 +3,8 @@
 SIGNATURE_FILE=$(mktemp)
 FETCHED_FILE=$(mktemp)
 
-curl -s -F "key=@${HOST_PUBLIC_KEY_PATH:?}" -X POST "https://${MIMI_DOMAIN:?}/sign/$(hostname)" -o "$SIGNATURE_FILE"
-curl -s -F "key=@${HOST_PUBLIC_KEY_PATH:?}" -X POST "https://${MIMI_DOMAIN:?}/get/$(hostname)" | rage --decrypt -i "${HOST_KEY_PATH:?}" -o "$FETCHED_FILE"
+curl -s -F "key=@${HOST_PUBLIC_KEY_PATH:?}" -X POST "https://${MIMI_DOMAIN:?}/sign/${NODE_ID:?}" -o "$SIGNATURE_FILE"
+curl -s -F "key=@${HOST_PUBLIC_KEY_PATH:?}" -X POST "https://${MIMI_DOMAIN:?}/get/${NODE_ID:?}" | rage --decrypt -i "${HOST_KEY_PATH:?}" -o "$FETCHED_FILE"
 if ssh-keygen -Y check-novalidate -n file -f "${PROVISIONER_PUBLIC_KEY:?}" -s "$SIGNATURE_FILE" < "$FETCHED_FILE"; then
   echo "Signature is valid."
 else

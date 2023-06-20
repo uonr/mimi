@@ -1,7 +1,7 @@
 import re
 
-from .errors import InvaildHostname
+from .errors import InvaildNodeId
 
-def check_hostname(hostname) -> bool:
+def check_id(hostname) -> bool:
     if re.match(r"^[a-zA-Z0-9\-_.]+$", hostname) is None:
-        raise InvaildHostname()
+        raise InvaildNodeId()

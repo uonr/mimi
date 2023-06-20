@@ -4,6 +4,10 @@ let cfg = config.services.mimi;
 in {
   options.services.mimi = {
     enable = mkEnableOption "Update secrets";
+    id = mkOption {
+      type = types.str;
+      default = config.networking.hostName;
+    };
     keyPath = mkOption {
       type = types.str;
       default = "/etc/ssh/ssh_host_ed25519_key";
@@ -25,6 +29,7 @@ in {
         User = "root";
       };
       environment = {
+        NODE_ID = cfg.id;
         HOST_PUBLIC_KEY_PATH = cfg.publicKeyPath;
         HOST_KEY_PATH = cfg.keyPath;
         MIMI_DOMAIN = cfg.domain;
@@ -35,15 +40,7 @@ in {
         updateSecrets = pkgs.writeShellApplication {
           name = "update-mimi-secrets";
 
-          runtimeInputs = with pkgs; [
-            curl
-            hostname
-            rage
-            gnutar
-            xz
-            gzip
-            openssh
-          ];
+          runtimeInputs = with pkgs; [ curl rage gnutar xz gzip openssh ];
 
           text = builtins.readFile ./scripts/update-secrets.sh;
         };

@@ -4,7 +4,7 @@ from subprocess import PIPE, STDOUT
 from flask import Flask, request
 from werkzeug.datastructures import FileStorage
 from .errors import NoKeyFile, PublicKeyNotFound, SecretNotFound
-from .utils import check_hostname
+from .utils import check_id
 
 app = Flask(__name__)
 
@@ -14,9 +14,9 @@ SSH_KEY_PATH = "./key"
 def hello_world():
     return "<p>mimi</p>"
 
-def encrypt(hostname: str):
-    check_hostname(hostname)
-    PUBLIC_KEY_PATH = "./secrets/{}.pub".format(hostname)
+def encrypt(id: str):
+    check_id(id)
+    PUBLIC_KEY_PATH = "./secrets/{}.pub".format(id)
     if not os.path.exists(PUBLIC_KEY_PATH):
         if request.method == "POST":
             recived_key = request.files.get("key", None)
@@ -26,25 +26,25 @@ def encrypt(hostname: str):
             recived_key.save(PUBLIC_KEY_PATH)
         else:
             raise PublicKeyNotFound()
-    SECRET_PATH = "./secrets/{}".format(hostname)
+    SECRET_PATH = "./secrets/{}".format(id)
     if not os.path.exists(SECRET_PATH):
         raise SecretNotFound()
     return subprocess.check_output(["rage", "-R", PUBLIC_KEY_PATH, "-a", SECRET_PATH])
 
-@app.route("/sign/<hostname>", methods=["GET", "POST"])
-def sign(hostname):
-    check_hostname(hostname)
+@app.route("/sign/<id>", methods=["GET", "POST"])
+def sign(id):
+    check_id(id)
     if not os.path.exists(SSH_KEY_PATH):
         raise NoKeyFile()
     p = subprocess.Popen(["ssh-keygen", '-Y', 'sign', '-n', 'file', '-f', SSH_KEY_PATH], stdout=PIPE, stdin=PIPE, stderr=PIPE)
-    with open("./secrets/{}".format(hostname), "rb") as f:
+    with open("./secrets/{}".format(id), "rb") as f:
         stdout, _stderr = p.communicate(input=f.read())
     return stdout
 
 
-@app.route("/get/<hostname>", methods=["GET", "POST"])
-def fetch_secret(hostname):
-    encrypted = encrypt(hostname)
+@app.route("/get/<id>", methods=["GET", "POST"])
+def fetch_secret(id):
+    encrypted = encrypt(id)
     return encrypted
 
 def main():
