@@ -37,6 +37,8 @@
           default = packages.pythonPkg;
         };
 
+        nixosModule = import ./nixos.nix;
+
         apps.default = {
           type = "app";
           program = "${packages.pythonPkg}/bin/main";
