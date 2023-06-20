@@ -35,6 +35,7 @@ NixOS configuration example:
 # Todo
 
 - [x] Sign response content by the public key of the provisioner
+- [ ] Passphrase
 - [ ] Encrypt the secrets on disk
 - [ ] Access log
 - [ ] IM notifications
