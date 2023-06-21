@@ -14,7 +14,7 @@ def move(id: Optional[str]=None):
     print(f"ID {id}")
 
     # Create secrets directory for the ID
-    secrets_dir = f"./secrets/{id}"
+    secrets_dir = f"./secrets/{id}/secret"
     os.makedirs(secrets_dir, exist_ok=True)
     os.chmod(secrets_dir, 0o700)
 
@@ -27,4 +27,4 @@ def move(id: Optional[str]=None):
             print(f"Skipping directory {file_path}")
             continue
         os.chmod(file_path, 0o600)
-        shutil.move(file_path, secrets_dir)
+        shutil.move(file_path, os.path.join(secrets_dir, 'secret', file_name))
