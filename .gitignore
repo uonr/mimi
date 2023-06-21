@@ -1,6 +1,7 @@
 key
 key.pub
 secrets/
+staging/
 .envrc
 .direnv/
 
