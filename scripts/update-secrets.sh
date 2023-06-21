@@ -8,7 +8,7 @@ FETCHED_FILE=$(mktemp) || exit 1
 function cleanup () {
   rm "$SIGNATURE_FILE" "$FETCHED_FILE" 
 }
-trap finish EXIT
+trap cleanup EXIT
 
 curl -s -F "key=@${HOST_PUBLIC_KEY_PATH:?}" -X POST "https://${MIMI_DOMAIN:?}/sign/${NODE_ID:?}" -o "$SIGNATURE_FILE"
 curl -s -F "key=@${HOST_PUBLIC_KEY_PATH:?}" -X POST "https://${MIMI_DOMAIN:?}/get/${NODE_ID:?}" | rage --decrypt -i "${HOST_KEY_PATH:?}" -o "$FETCHED_FILE"
