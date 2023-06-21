@@ -17,7 +17,7 @@ def hello_world():
 def get_secret_output(id):
     secret_path = get_secret_path(id, 'secret')
     if os.path.isdir(secret_path):
-        return subprocess.check_output(["tar", "-czf", "-", secret_path])
+        return subprocess.check_output(["tar", "-czf", "-", "-C", secret_path, '.'])
     else:
         with open(secret_path, "rb") as f:
             return f.read()
