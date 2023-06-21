@@ -40,7 +40,8 @@ def fetch_secret(id):
     check_id(id)
     public_key_path = get_secret_path(id, "host.pub") 
     if not os.path.exists(public_key_path):
-        print(public_key_path)
+        if not os.path.exists(get_secret_path(id)):
+            raise SecretNotFound()
         if request.method == "POST":
             recived_key = request.files.get("key", None)
             if recived_key is None:
