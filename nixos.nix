@@ -24,6 +24,7 @@ in {
       enable = true;
       description = "Update secrets";
       before = [ "network-online.target" ];
+      wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
