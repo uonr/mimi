@@ -1,4 +1,5 @@
 
+from mimi.move import move
 from mimi.utils import check_passphrase, get_passphrase
 from .app import app
 import argparse
@@ -12,6 +13,9 @@ serve_parser.add_argument('--debug', action='store_true', help='run server in de
 
 init_parser = subparsers.add_parser('init', help='initialize key')
 
+move_parser = subparsers.add_parser('move', help='move staging files')
+move_parser.add_argument('id', type=str, nargs='?', default=None, help='node id')
+
 
 def main():
     args = parser.parse_args()
@@ -24,3 +28,5 @@ def main():
             app.run(port=args.port, debug=args.debug)
         case "init":
             init.init()
+        case "move":
+            move(args.id)
