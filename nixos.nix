@@ -6,7 +6,7 @@ in {
     enable = mkEnableOption "Update secrets";
     id = mkOption {
       type = types.str;
-      default = config.networking.hostName;
+      default = config.networking.fqdn;
     };
     keyPath = mkOption {
       type = types.str;
