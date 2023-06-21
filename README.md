@@ -4,17 +4,25 @@ A simple secrets provision server
 # Example
 
 ```shell
-echo 'ほんとのきもちはひみつだよ' > secrets/example
-ssh-keygen -t ed25519 -C 'mimi' -f key
+# Required for decrypting the secrets
+nix-shell -p rage 
+
+nix run 'github:uonr/mimi' init
+# Set passphrase
+mkdir -p secrets/example/
+echo 'ほんとのきもちはひみつだよ' > secrets/example/secret
 nix run 'github:uonr/mimi' serve
+# Input passphrase
 curl -F "key=@key.pub" -X POST http://localhost:8111/sign/example > example.sig
+cat example.sig
 # -----BEGIN SSH SIGNATURE-----
 # ...
 # -----END SSH SIGNATURE-----
-curl -F "key=@key.pub" -X POST http://localhost:8111/get/example | rage --decrypt -i key
+curl -F "key=@key.pub" -X POST http://localhost:8111/get/example | rage --decrypt -i key > example.txt
+cat example.txt
 # ほんとのきもちはひみつだよ
 
-curl -F "key=@key.pub" -X POST http://localhost:8111/get/example | rage --decrypt -i key | ssh-keygen -Y check-novalidate -n file -f key.pub -s example.sig
+ssh-keygen -Y check-novalidate -n file -f key.pub -s example.sig < example.txt
 # Good "file" signature with ED25519 key SHA256:...
 ```
 

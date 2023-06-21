@@ -15,8 +15,8 @@ def get_secret_path(id: str, filename: Optional[str] = None) -> str:
         return os.path.join(secrets_path(), id)
     return os.path.join(secrets_path(), id, filename)
 
-def get_key_path() -> str:
-    if not os.path.exists("./key"):
+def get_key_path(check_exists=False) -> str:
+    if check_exists and not os.path.exists("./key"):
         raise NoKeyFile()
     return "./key"
 

@@ -19,6 +19,7 @@
           python = pythonVersion;
           src = ./.;
           requirements = builtins.readFile ./requirements.txt;
+          propagatedBuildInputs = with pkgs; [ rage ];
         };
         pythonAppEnv = mach.mkPython {
           python = pythonVersion;
