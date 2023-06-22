@@ -23,11 +23,13 @@ in {
     systemd.services.mimi = {
       enable = true;
       description = "Update secrets";
-      before = [ "network-online.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      wantedBy = [ "basic.target" ];
       serviceConfig = {
         Type = "oneshot";
         User = "root";
+        Restart = "on-failure";
+        RestartSec = "1s";
       };
       environment = {
         NODE_ID = cfg.id;
