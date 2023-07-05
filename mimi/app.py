@@ -1,4 +1,6 @@
 import os
+import tarfile
+import tempfile
 import subprocess
 from subprocess import PIPE, STDOUT, Popen
 from flask import Flask, current_app, request
@@ -14,15 +16,34 @@ SSH_KEY_PATH = get_key_path()
 def hello_world():
     return "<p>mimi</p>"
 
-def get_secret_output(id):
+def reset_tarinfo(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo:
+    tarinfo.uid = 0
+    tarinfo.gid = 0
+    tarinfo.mtime = 0
+    return tarinfo
+
+def get_secret_output(id: str, refresh_cache: bool = False) -> bytes:
+    if not refresh_cache:
+        cached = current_app.config.get("DB", {}).get(id, None)
+        if cached is not None:
+            return cached
     secret_path = get_secret_path(id, 'secret')
     if not os.path.exists(secret_path):
         raise SecretNotFound()
+    result = None
     if os.path.isdir(secret_path):
-        return subprocess.check_output(["tar", "-czf", "-", "-C", secret_path, '.'])
+        with tempfile.TemporaryFile() as f:
+            with tarfile.open(fileobj=f, mode="w:gz") as tar:
+                tar.add(secret_path, arcname=".", filter=reset_tarinfo, recursive=True)
+            f.seek(0)
+            result = f.read()
     else:
         with open(secret_path, "rb") as f:
-            return f.read()
+            result = f.read()
+    assert isinstance(result, bytes)
+    current_app.config["DB"][id] = result
+    return result
+
 
 @app.route("/sign/<id>", methods=["GET", "POST"])
 def sign(id):
@@ -31,7 +52,7 @@ def sign(id):
     if not os.path.exists(SSH_KEY_PATH):
         raise NoKeyFile()
     sign_process = subprocess.Popen(["ssh-keygen", '-Y', 'sign', '-n', 'file', '-f', SSH_KEY_PATH, '-P', passphrase], stdin=PIPE, stderr=PIPE, stdout=PIPE)
-    stdout, stderr = sign_process.communicate(get_secret_output(id))
+    stdout, stderr = sign_process.communicate(get_secret_output(id, refresh_cache=True))
     return stdout
 
 
