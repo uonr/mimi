@@ -3,7 +3,7 @@ from mimi.move import move
 from mimi.utils import check_passphrase, get_passphrase
 from .app import app
 import argparse
-import dbm
+import shelve
 import os
 import tempfile
 
@@ -29,7 +29,7 @@ def main():
             passpharse = get_passphrase()
             check_passphrase(passpharse)
             with app.app_context():
-                app.config["DB"] = dbm.open(CACHE_FILE, "n")
+                app.config["DB"] = shelve.open(CACHE_FILE, "n")
                 app.config["PASSPHRASE"] = passpharse
             try:
                 app.run(port=args.port, debug=args.debug)

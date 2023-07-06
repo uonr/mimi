@@ -16,3 +16,7 @@ class PublicKeyNotFound(HTTPException):
 class SecretNotFound(HTTPException):
     code = 404
     description = 'Secret not found'
+
+class SecretAlreadyUsed(HTTPException):
+    code = 400
+    description = 'Secret already used'
